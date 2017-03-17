@@ -61,6 +61,7 @@ class DriverManager(NamedExtensionManager):
             warn_on_missing_entrypoint=warn_on_missing_entrypoint
         )
 
+    #如果不提供失败回调处理，则默认使用这个回调
     @staticmethod
     def _default_on_load_failure(drivermanager, ep, err):
         raise
