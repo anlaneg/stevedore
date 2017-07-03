@@ -156,8 +156,10 @@ class ExtensionManager(object):
         self.extensions = extensions
         self._extensions_by_name = None
 
+    #缓存entry_point
     ENTRY_POINT_CACHE = {}
 
+    #返回self.namespace对应的eps
     def list_entry_points(self):
         """Return the list of entry points for this namespace.
 
@@ -166,7 +168,9 @@ class ExtensionManager(object):
 
         """
         if self.namespace not in self.ENTRY_POINT_CACHE:
+            #不存entry_point_cache中的情况
             eps = list(pkg_resources.iter_entry_points(self.namespace))
+            #缓存此namespace的eps
             self.ENTRY_POINT_CACHE[self.namespace] = eps
         return self.ENTRY_POINT_CACHE[self.namespace]
 
@@ -174,10 +178,12 @@ class ExtensionManager(object):
         """Return the list of entry points names for this namespace."""
         return list(map(operator.attrgetter("name"), self.list_entry_points()))
 
+    #加载self.namespace下对应的所有entry_points,并将其统一封装成Extension结构体，按数组返回
     def _load_plugins(self, invoke_on_load, invoke_args, invoke_kwds,
                       verify_requirements):
         extensions = []
         for ep in self.list_entry_points():
+            #针对每一个ep进行加载
             LOG.debug('found extension %r', ep)
             try:
                 ext = self._load_one_plugin(ep,
@@ -215,10 +221,12 @@ class ExtensionManager(object):
             plugin = ep.resolve()
         else:
             plugin = ep.load(require=verify_requirements)
+        #如果load时，就要调用，则调用并传入参数
         if invoke_on_load:
             obj = plugin(*invoke_args, **invoke_kwds)
         else:
             obj = None
+        #构造出对象，并将其封装成Extension object
         return Extension(ep.name, ep, plugin, obj)
 
     def names(self):
