@@ -100,6 +100,7 @@ class ExtensionManager(object):
             namespace,
             propagate_map_exceptions=propagate_map_exceptions,
             on_load_failure_callback=on_load_failure_callback)
+        #构造plugin对应的object,并将其封装在extension类型中
         extensions = self._load_plugins(invoke_on_load,
                                         invoke_args,
                                         invoke_kwds,
@@ -251,7 +252,10 @@ class ExtensionManager(object):
             # FIXME: Use a more specific exception class here.
             raise NoMatches('No %s extensions found' % self.namespace)
         response = []
+        #针对每一个extension,调用_invoke_one_plugin完成映射
         for e in self.extensions:
+            #response是一个列表，通过func回调每一个e,并将func的返回值构造成列表，返回给
+            #调用者。可以理解为func是映射函数，返回一个列表类型。
             self._invoke_one_plugin(response.append, func, e, args, kwds)
         return response
 
